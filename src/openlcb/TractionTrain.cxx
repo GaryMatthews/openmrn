@@ -452,7 +452,8 @@ struct TrainService::Impl
                 {
                     flip_speed = true;
                 }
-            } else if (cmd == TractionDefs::REQ_SET_FN)
+            }
+            else if (cmd == TractionDefs::REQ_SET_FN)
             {
                 uint32_t address = payload()[1];
                 address <<= 8;
@@ -646,6 +647,7 @@ TrainService::~TrainService()
 
 void TrainService::register_train(TrainNode *node)
 {
+    iface_->executor()->assert_current();
     iface_->add_local_node(node);
     extern void StartInitializationFlow(Node * node);
     StartInitializationFlow(node);
@@ -657,11 +659,11 @@ void TrainService::register_train(TrainNode *node)
 
 void TrainService::unregister_train(TrainNode *node)
 {
+    iface_->executor()->assert_current();
     iface_->delete_local_node(node);
     AtomicHolder h(this);
     nodes_.erase(node);
     LOG(VERBOSE, "Unregistered node %p for traction.", node);
-    HASSERT(nodes_.find(node) == nodes_.end());
 }
 
 } // namespace openlcb
